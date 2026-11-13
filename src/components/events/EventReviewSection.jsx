@@ -6,13 +6,14 @@ export default function EventReviewSection({
   averageRating,
   numReviews,
 }) {
+//   console.log(reviews);
   const isAuthenticated = false;
   return (
     <section className="bg-white rounded-3xl border border-[#EBE8DF] p-6 sm:p-8 shadow-subtle space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#F2EFE8]">
         <div>
           <h3 className="text-xl font-bold text-[#111]">
-            Attendee Reviews &  Experiences
+            Attendee Reviews & Experiences
           </h3>
           <p className="text-xs text-stone-500 mt-0.5">
             Real feedback from community members who joined this event
@@ -22,10 +23,12 @@ export default function EventReviewSection({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 text-[#E65100]">
             <span className="text-amber-500 text-lg">⭐</span>
-            <span className="text-lg font-black text-stone-900">{averageRating > 0 ? averageRating : "New"}</span>
+            <span className="text-lg font-black text-stone-900">
+              {averageRating > 0 ? averageRating : "New"}
+            </span>
           </div>
           <span className="text-xs text-stone-400 font-medium">
-           ( {numReviews} Review)
+            ( {numReviews} Review)
           </span>
         </div>
       </div>

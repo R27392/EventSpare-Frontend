@@ -2,6 +2,7 @@ import Skeleton from "@/components/common/Skeleton";
 import EventCard from "@/components/events/EventCard";
 import FeaturedCarousel from "@/components/events/FeaturedCarousel";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 import axios from "axios";
 import {
   ArrowBigRight,
@@ -101,7 +102,6 @@ const HUB_CITIES = [
   },
 ];
 
-
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -112,29 +112,20 @@ export default function Home() {
     async function loadHomePage() {
       setIsLoading(true);
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/events/featured",
-        );
+        let data = await api.get("/api/events/featured");
 
         setFeaturedEvents(data);
       } catch (error) {}
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/categories",
-        );
+        let data = await api.get("/api/categories");
         setCategories(data);
       } catch (error) {}
 
-        try {
-        let {
-          data: { data },
-        } = await axios.get(
-          "https://eventsphere-server-mfdb.onrender.com/api/events?limit=8&sort=startDate&order=asc",
+      try {
+        let data = await api.get(
+          "/api/events?limit=8&sort=startDate&order=asc",
         );
+
         setTrendingEvents(data);
       } catch (error) {}
 
@@ -272,7 +263,7 @@ export default function Home() {
         )}
       </section>
 
-   <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#EBE8DF]">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
@@ -317,9 +308,9 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {HUB_CITIES.map((c,i) => (
+          {HUB_CITIES.map((c, i) => (
             <Link
-            key = {i}
+              key={i}
               to="/explore"
               className="group relative rounded-2xl overflow-hidden aspect-4/3 bg-stone-900 shadow-subtle border border-[#EBE8DF]"
             >
@@ -343,7 +334,7 @@ export default function Home() {
         </div>
       </section>
 
-       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-[#1C1B18] text-white rounded-3xl p-8 sm:p-12 border border-[#33312B] flex flex-col lg:flex-row items-center justify-between gap-8">
           <div className="max-w-xl space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-[#FF8A65]">
@@ -353,7 +344,9 @@ export default function Home() {
               Host your next summit, workshop or indie showcase on EventSphere.
             </h2>
             <p className="text-sm text-stone-300 leading-relaxed">
-              Every registered user can organize events. Enjoy seamless ticketing, automatic calendar syncing, verified attendee reviews, and real-time dashboard analytics.
+              Every registered user can organize events. Enjoy seamless
+              ticketing, automatic calendar syncing, verified attendee reviews,
+              and real-time dashboard analytics.
             </p>
           </div>
 
@@ -373,7 +366,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }

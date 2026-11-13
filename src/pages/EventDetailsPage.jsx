@@ -1,11 +1,11 @@
 import EventReviewSection from "@/components/events/EventReviewSection";
+import api from "@/lib/axios";
 import {
   formatEventDate,
   formatEventTimeRange,
   formatPrice,
   getDaysRemaining,
 } from "@/lib/utils";
-import axios from "axios";
 import {
   Bookmark,
   Calendar,
@@ -29,32 +29,23 @@ export default function EventDetailsPage() {
   const { slug } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [event, setEvent] = useState([]);
- const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]);
   useEffect(() => {
     async function fecthEvent() {
       setIsLoading(true);
       try {
-        let {
-          data: { data },
-        } = await axios.get(
-          `https://eventsphere-server-mfdb.onrender.com/api/events/${slug}`,
-        );
+        let data = await api.get(`/api/events/${slug}`);
         setEvent(data);
 
-         let {
-          data: { data: reviews },
-        } = await axios.get(
-          `https://eventsphere-server-mfdb.onrender.com/api/events/${data.id || data._id}/reviews`,
-        );
+        let reviews  = await api.get(`/api/events/${data.id || data._id}/reviews`);
         setReviews(reviews);
-      } 
-      //https://eventsphere-server-mfdb.onrender.com/api/events/:eventId/reviews
-      catch (error) {}
+      } catch (error) { }
+
       setIsLoading(false);
     }
     fecthEvent();
   }, []);
-console.log(reviews);
+  console.log(reviews);
 
   function handleShare() {
     navigator.clipboard.writeText(window.location.href);
@@ -262,7 +253,7 @@ console.log(reviews);
           </section>
 
           {/* Reviews section */}
-             <EventReviewSection
+          <EventReviewSection
             reviews={reviews}
             averageRating={event.averageRating}
             numReviews={event.numReviews}
