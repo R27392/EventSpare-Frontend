@@ -1,3 +1,4 @@
+import { handleFavorite } from "@/components/events/EventCard";
 import EventReviewSection from "@/components/events/EventReviewSection";
 import api from "@/lib/axios";
 import {
@@ -15,35 +16,48 @@ import {
   Share2,
   ShieldCheck,
   Sparkles,
-  User,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router";
+import { toast } from "sonner";
 
 const Modes = {
   "in-person": "In-Person Gathering",
   online: "Online Conclave",
   hybrid: "Hybrid Format",
 };
+
 export default function EventDetailsPage() {
   const { slug } = useParams();
+
   const [isLoading, setIsLoading] = useState(false);
   const [event, setEvent] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const dispatch = useDispatch();
+  const isFavorite = useSelector((state) =>
+    state.favorites.items.some(
+      (e) => (e.id || e._id) === (event.id || event._id),
+    ),
+  );
+
   useEffect(() => {
-    async function fecthEvent() {
+    async function fetchEvent() {
       setIsLoading(true);
       try {
         let data = await api.get(`/api/events/${slug}`);
         setEvent(data);
 
-        let reviews  = await api.get(`/api/events/${data.id || data._id}/reviews`);
+        let reviews = await api.get(
+          `/api/events/${data.id || data._id}/reviews`,
+        );
         setReviews(reviews);
-      } catch (error) { }
+      } catch (error) {}
 
       setIsLoading(false);
     }
-    fecthEvent();
+    fetchEvent();
   }, []);
   console.log(reviews);
 
@@ -68,6 +82,7 @@ export default function EventDetailsPage() {
       </div>
     );
   }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 pb-24">
       <div className="flex items-center justify-between">
@@ -93,24 +108,28 @@ export default function EventDetailsPage() {
 
           <button
             type="button"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all cursor-pointer bg-white border-[#DDD9CE] hover:bg-stone-50 text-stone-700"
+            onClick={(e) => handleFavorite(e, event, dispatch, isFavorite)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+              isFavorite
+                ? "bg-orange-50 border-orange-200 text-[#E65100]"
+                : "bg-white border-[#DDD9CE] hover:bg-stone-50 text-stone-700"
+            }`}
           >
-            <span>
-              <Bookmark className="w-4 h-4" />
-            </span>
-            <span>Save</span>
+            <Bookmark
+              className={`w-3.5 h-3.5 ${isFavorite ? "fill-[#E65100]" : ""}`}
+            />
+            <span>{isFavorite ? "Saved" : "Save"}</span>
           </button>
         </div>
       </div>
 
-      {/* Hero Banner Image */}
       <div className="relative rounded-3xl overflow-hidden aspect-16/8 max-h-115 shadow-subtle border border-[#EBE8DF]">
         <img
           src={event.image}
           alt={event.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
 
         <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
@@ -122,15 +141,17 @@ export default function EventDetailsPage() {
                 ? "Online Conclave"
                 : event.format === "in-person"
                   ? "In-Person Gathering"
-                  : "Hybird Format"} */}
+                  : "Hybrid Format"} */}
               {Modes[event.format]}
             </span>
-            <span className="inline-flex items-center gap-1.5 whitespace-nowrap bg-[#FFF3E0] text-[#B73E00] border border-[#FFE0B2] text-xs px-2.5 py-1 rounded-full font-medium">
-              <span>
-                <Sparkles />
-              </span>{" "}
-              Featured Pick
-            </span>
+            {event.featured && (
+              <span className="inline-flex items-center gap-1.5 whitespace-nowrap bg-[#FFF3E0] text-[#B73E00] border border-[#FFE0B2] text-xs px-2.5 py-1 rounded-full font-medium">
+                <span>
+                  <Sparkles />
+                </span>{" "}
+                Featured Pick
+              </span>
+            )}
           </div>
 
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
@@ -148,7 +169,7 @@ export default function EventDetailsPage() {
             <span className="flex items-center gap-1">
               <span>
                 <Clock />
-              </span>
+              </span>{" "}
               {formatEventTimeRange(event.startDate, event.endDate)}
             </span>
             <span>•</span>
@@ -156,7 +177,7 @@ export default function EventDetailsPage() {
               <span>
                 <MapPin />
               </span>{" "}
-              {event?.venue},{event?.city}
+              {event?.venue}, {event?.city}
             </span>
           </div>
         </div>
@@ -214,8 +235,8 @@ export default function EventDetailsPage() {
             </h3>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <img
-                src={event?.organizer?.avatar}
-                alt={event?.organizer?.name}
+                src={event.organizer?.avatar}
+                alt={event.organizer?.name}
                 className="w-14 h-14 rounded-2xl object-cover border border-[#DDD9CE]"
               />
               <div className="space-y-1 flex-1">
@@ -225,7 +246,7 @@ export default function EventDetailsPage() {
                       to="/profile"
                       className="font-bold text-base text-stone-900 hover:text-[#E65100] transition-colors"
                     >
-                      {event?.organizer?.name}
+                      {event.organizer?.name}
                     </Link>
                     <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-stone-100 text-stone-700">
                       Organizer
@@ -242,10 +263,10 @@ export default function EventDetailsPage() {
                   </Link>
                 </div>
                 <p className="text-xs font-medium text-[#C2410C]">
-                  {event?.organizer?.organization}
+                  {event.organizer?.organization}
                 </p>
                 <p className="text-xs text-stone-600 leading-relaxed pt-1">
-                  {event?.organizer?.bio}
+                  {event.organizer?.bio}
                 </p>
               </div>
             </div>
@@ -278,13 +299,12 @@ export default function EventDetailsPage() {
                 </span>
               </div>
             </div>
-
             {/* Capacity status */}
             <div className="space-y-2">
               <div className="flex justify-between text-xs text-stone-600">
                 <span className="flex items-center gap-1.5 font-medium">
                   <span>
-                    <User className="w-4 h-4" />
+                    <Users className="w-4 h-4" />
                   </span>{" "}
                   Capacity
                 </span>
@@ -319,7 +339,7 @@ export default function EventDetailsPage() {
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium h-10 px-4 py-2 border border-[#CCC8BA] bg-transparent hover:bg-[#F2F1EC] text-[#222] w-full"
               >
                 <span>
-                  <Calendar />
+                  <Calendar className="w-4 h-4" />
                 </span>{" "}
                 Add to My Schedule
               </button>

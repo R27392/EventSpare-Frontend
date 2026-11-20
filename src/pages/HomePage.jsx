@@ -26,9 +26,10 @@ import { Link } from "react-router";
 function getCategoryIconComponent(category) {
   const icon = category?.icon || "";
 
-  if (icon == "palette") {
+  if (icon === "palette") {
     return Palette;
   }
+
   if (icon === "briefcase") {
     return Briefcase;
   }
@@ -49,6 +50,7 @@ function getCategoryIconComponent(category) {
   }
   return Tag;
 }
+
 function getCategoryColor(i) {
   const colors = [
     {
@@ -76,6 +78,7 @@ function getCategoryColor(i) {
       text: "group-hover:text-amber-600",
     },
   ];
+
   return colors[i % colors.length];
 }
 
@@ -116,6 +119,7 @@ export default function Home() {
 
         setFeaturedEvents(data);
       } catch (error) {}
+
       try {
         let data = await api.get("/api/categories");
         setCategories(data);
@@ -285,7 +289,7 @@ export default function Home() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <Skeleton />
+              <Skeleton key={i} />
             ))}
           </div>
         ) : (
@@ -369,3 +373,4 @@ export default function Home() {
     </div>
   );
 }
+
