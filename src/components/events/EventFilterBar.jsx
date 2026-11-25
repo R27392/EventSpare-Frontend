@@ -1,37 +1,18 @@
-import { useDispatch, useSelector } from "react-redux";
-import { setIsPaid, setFormat } from "@/store/slices/filterSlices";
-import { useSearchParams } from "react-router";
+import { useEventFilters } from "@/hooks/useEventFilters";
+
 
 export default function EventFilterBar() {
-  const dispatch = useDispatch();
-   const [searchParams, setSearchParams] = useSearchParams();
 
-  // const params = new URLSearchParams();
-  // params.set("format", "online");
-  // console.log(params);
-  
- const filters = useSelector((state) =>state.filters);
-  
- function updateParams(updates){
-  const params = new URLSearchParams(searchParams);
-  Object.entries(updates).forEach(([key,val]) => {
-    if(val !== undefined && val !== "" && val !== null){
-      params.set(key,String(val));
-    }
-  });
-  setSearchParams(params);
- }
-
+const{updateParams,searchParams,filters} = useEventFilters();
   function handleFormatChange(format) {
-    dispatch(setFormat(format));
     updateParams({format});
   }
 
   function handleIsPaid(entry){
-    dispatch(setIsPaid(entry))
+
     updateParams({isPaid:entry});
   }
-  const activeFormat = searchParams.get("format") || filters.format;
+  const activeFormat = searchParams.get("format") ;
   return (
     <div className="space-y-4">
       {/* Top Search & Primary Filters Row */}
@@ -233,8 +214,12 @@ export default function EventFilterBar() {
           <span className="font-semibold text-stone-700">Entry:</span>
           <button
             type="button"
-            onClick={()=> handleEntry("")}
-            className="px-2.5 py-1 rounded-lg border text-xs font-medium transition-all cursor-pointer bg-stone-800 text-white border-stone-800"
+            onClick={()=> handleIsPaid("")}
+            className={`px-2.5 py-1 rounded-lg border text-xs font-medium transition-all cursor-pointer ${
+              filters.isPaid === "" || null
+              ?" bg-stone-800 text-white border-stone-800"
+              : "bg-white border-[#DDD9CE] text-stone-600"
+            }`}
           >
             All
           </button>
